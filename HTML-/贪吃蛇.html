@@ -1,0 +1,240 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=gb2312"/>
+<title>贪吃蛇</title>
+<style type="text/css">
+*{
+font-family:"微软雅黑";
+}
+#map{
+	width:600px;
+	height:600px;
+	background:gray;
+	position:absolute;
+	left:10px;
+	top:60px;
+	overflow:hidden;
+}
+input{
+	padding:10px;
+	background:black;
+	color:#ffffff;
+}
+</style>
+</head>
+<body onkeydown="control(event);">
+<div id="map"></div>
+<div class="bottom"> 
+	<input type="button" value="开始游戏" id="start_btn"/>
+	<input type="button" value="暂停游戏" id="stop"/>
+	<input type="button" value="继续游戏" id="continue"/>
+	<span>得分：</span><span id="score"></span>
+</div> 
+<script type="text/javascript">
+    //div  600*600 蛇20*20 div里面总共可以放 30*30个div
+	var snake_left =Math.floor(Math.random()*26)*20;
+	var snake_top =Math.floor(Math.random()*30)*20;
+	var map =document.getElementById("map");
+	var snakes=[];//蛇的关节
+	var stepX=20,stepY=0;
+	var snake_direction="right";
+	var timer;
+	document.getElementById("start_btn").onclick= function(){
+	//游戏开始
+		for(var i=2;i>=0;i--){
+			drawSnake(i);
+		}
+		snakeMove();
+		//超框
+		overDiv();
+		//产生一个食物
+		food();
+		eat();
+		
+	}
+	function eat(){
+		var x1=parseInt(snakes[0].style.left);
+		var y1=parseInt(snakes[0].style.top);
+		
+		var i_food=document.getElementById("i_food");
+		
+		var x2=parseInt(i_food.style.left);
+		var y2=parseInt(i_food.style.top);
+		
+		if(Math.abs(x1-x2)<20 && Math.abs(y1-y2)<20){
+				i_food.style.background="red";
+				snakes.push(i_food);
+				i_food.id="";
+				food();
+		
+		}
+		setTimeout("eat()",30);
+		
+	}
+	function food(){
+		var food_x=Math.floor(Math.random()*29+1)*20+"px";
+		var food_y=Math.floor(Math.random()*29+1)*20+"px";
+		//
+		var color;
+		color = Math.round(Math.random()*6+1);
+		
+		switch(color){
+			case 1:
+				color="red";
+				break;
+			case 2:
+				color="organe";
+				break;
+			case 3:
+				color="yellow";
+				break;
+			case 4:
+				color="green";
+				break;
+			case 5:
+				color="blue";
+				break;
+			case 6:
+				color="indigo";
+				break;
+			case 7:
+				color="purple";
+				break;
+			default:
+				color="red";
+				break;
+			
+	    }
+		var food_div=document.createElement("div");
+		food_div.style.position="absolute";
+		food_div.style.top=food_y;
+		food_div.style.left=food_x;
+		
+		food_div.style.backgroundColor=color;
+		food_div.style.border="1px solid #333";
+		food_div.style.width= "18px";
+		food_div.style.height= "18px";
+		food_div.id="i_food";
+		map.appendChild(food_div);
+	}
+	function snakeMove(){
+	for(var i=snakes.length-1;i>0;i--){
+		snakes[i].style.left=snakes[i-1].style.left;
+		snakes[i].style.top=snakes[i-1].style.top;
+	}
+		snakes[0].style.left = parseInt(snakes[0].style.left)+stepX+"px";
+		snakes[0].style.top = parseInt(snakes[0].style.top)+stepY+"px";
+		
+		timer=setTimeout("snakeMove()",400);
+	}
+	function drawSnake(num){
+		var snakeNode=document.createElement("div");
+		snakeNode.style.position="absolute";
+		snakeNode.style.top="0px";
+		snakeNode.style.left=num* 20+ "px";
+		snakeNode.style.backgroundColor="red";
+		//如果设置div边框  20*20 18*18 
+		snakeNode.style.border="1px solid #333";
+		snakeNode.style.width= "18px";
+		snakeNode.style.height= "18px";
+		snakes.push(snakeNode);
+		map.appendChild(snakeNode);
+	}
+	function re_move(){
+		clearTimeout(timer);
+		snakeMove();
+	}
+	function control(event){
+		var n=event.keyCode;
+		switch(n){
+			case 37:
+				if(snake_direction=="right"){
+				break;
+				}
+				else{
+					stepX=-20;
+					stepY=0;
+					snake_direction="left";
+				}
+				re_move();
+				break;
+			case 40://下
+				if(snake_direction=="up"){
+				break;
+				}
+				else{
+					stepX=0;
+					stepY=20;
+					snake_direction="down";
+				}
+				re_move();
+				break;
+			case 38:
+				if(snake_direction=="down"){
+				break;
+				}
+				else{
+					stepX=0;
+					stepY=-20;
+					snake_direction="up";
+				}
+				re_move();
+				break;
+			case 39:
+				if(snake_direction=="left"){
+				break;
+				}
+				else{
+					stepX=20;
+					stepY=0;
+					snake_direction="right";
+				}
+				re_move();
+				break;
+			}
+			
+			}
+		function overDiv(){
+				var score = document.getElementById("score");
+				score.innerHTML= (snakes.length-3)*10;
+				var x=parseInt(snakes[0].style.left);
+				var y=parseInt(snakes[0].style.top);
+				if(x<0 ||x>580){
+					alert("你挂了");
+					window.location.reload();
+					
+				}
+				if(y<0||y>580){
+					alert("你挂了");
+					window.location.reload();
+				}
+				if(snakes.length >4){
+					for(var i=3;i<snakes.length-1;i++){
+							var x1=parseInt(snakes[i].style.left);
+							var y1=parseInt(snakes[i].style.top);
+							if(x==x1 && y==y1){
+								alert("你挂了");
+					             window.location.reload();
+							}
+					}
+				}
+				setTimeout("overDiv()",30);
+	}
+	document.getElementById("stop").onclick = function(){
+		clearTimeout(timer);
+		clearTimeout(time1);
+		clearTimeout(time2);
+		a = 1;
+	}
+	
+	document.getElementById("continue").onclick = function(){
+		snakeMove();
+		overDiv();
+		eat();
+		a = 0;
+	}
+</script>
+
+
+</body>
+</html>
